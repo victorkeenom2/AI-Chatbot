@@ -1,0 +1,120 @@
+## **Complete AI Chatbot Setup Guide**
+
+This guide walks you through the full setup, including GitHub initialization, backend AI model integration, and frontend development.
+
+---
+
+## **Step 1: Set Up GitHub Repository**
+1. Log in to [GitHub](https://github.com/).
+2. Click **New Repository** → Name it (e.g., `AI-Chatbot`).
+3. Choose **Public** or **Private** and check **"Initialize with a README"**.
+4. Copy the repository link (e.g., `https://github.com/your-username/AI-Chatbot.git`).
+5. Clone the repository locally:
+   ```sh
+   git clone https://github.com/your-username/AI-Chatbot.git
+   cd AI-Chatbot
+   ```
+
+---
+
+## **Step 2: Backend Setup (AI Chatbot API)**
+We'll use **FastAPI** with OpenAI’s GPT or a local LLaMA model.
+
+### **Install Dependencies**
+```sh
+pip install fastapi uvicorn openai
+```
+
+### **Create `main.py` (Backend API)**
+```python
+from fastapi import FastAPI
+import openai
+import os
+
+app = FastAPI()
+
+# Set your OpenAI API key
+openai.api_key = os.getenv("OPENAI_API_KEY")
+
+@app.post("/chat")
+async def chat(prompt: str):
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",  # Change to an open-source model if needed
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return {"response": response["choices"][0]["message"]["content"]}
+
+# Run server: uvicorn main:app --reload
+```
+
+---
+
+## **Step 3: Frontend Setup (React Chat UI)**
+### **Initialize React App**
+```sh
+npx create-react-app chatbot-ui
+cd chatbot-ui
+npm install axios
+```
+
+### **Modify `App.js`**
+```jsx
+import { useState } from "react";
+import axios from "axios";
+
+function App() {
+  const [message, setMessage] = useState("");
+  const [response, setResponse] = useState("");
+
+  const sendMessage = async () => {
+    try {
+      const res = await axios.post("http://127.0.0.1:8000/chat", { prompt: message });
+      setResponse(res.data.response);
+    } catch (error) {
+      console.error("Error fetching response:", error);
+      setResponse("Error: Unable to get response.");
+    }
+  };
+
+  return (
+    <div style={{ textAlign: "center", marginTop: "50px" }}>
+      <h1>AI Chatbot</h1>
+      <input
+        type="text"
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        placeholder="Type your message..."
+      />
+      <button onClick={sendMessage}>Send</button>
+      <p><strong>Response:</strong> {response}</p>
+    </div>
+  );
+}
+
+export default App;
+```
+
+---
+
+## **Step 4: Run the Application**
+### **Start Backend**
+```sh
+uvicorn main:app --reload
+```
+
+### **Start Frontend**
+```sh
+cd chatbot-ui
+npm start
+```
+
+---
+
+## **Step 5: Deploy to GitHub**
+```sh
+git add .
+git commit -m "Initial AI Chatbot setup"
+git push origin main
+```
+
+
